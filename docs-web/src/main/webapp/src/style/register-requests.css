@@ -1,0 +1,74 @@
+/* Container */
+.container {
+    margin: 20px auto;
+    width: 90%;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    text-align: center;
+}
+
+/* Title */
+.container h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+/* Fancy Table */
+.fancy-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.fancy-table th, .fancy-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.fancy-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.fancy-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.fancy-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Action Buttons */
+.action-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.approve-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.approve-btn:hover {
+    background-color: #218838;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.reject-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.reject-btn:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}

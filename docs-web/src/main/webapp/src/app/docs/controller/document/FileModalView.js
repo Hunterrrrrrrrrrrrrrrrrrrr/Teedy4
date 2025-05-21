@@ -3,7 +3,7 @@
 /**
  * File modal view controller.
  */
-angular.module('docs').controller('FileModalView', function ($http,$uibModalInstance, $scope, $state, $stateParams, $sce, Restangular, $transitions,$uibModal) {
+angular.module('docs').controller('FileModalView', function ($http, $uibModalInstance, $scope, $state, $stateParams, $sce, Restangular, $transitions, $uibModal) {
   var setFile = function (files) {
     // Search current file
     _.each(files, function (value) {
@@ -14,12 +14,10 @@ angular.module('docs').controller('FileModalView', function ($http,$uibModalInst
     });
   };
 
-  // 新增方法：检查是否是图片文件
-  $scope.isImage = function() {
+  $scope.isImage = function () {
     return $scope.file && $scope.file.mimetype.startsWith('image/');
   };
 
-  // 在控制器中添加以下代码
   $scope.isEditingImage = false;
   $scope.isCropping = false;
   let canvas, ctx;
@@ -27,15 +25,13 @@ angular.module('docs').controller('FileModalView', function ($http,$uibModalInst
   let cropStartX, cropStartY;
   let cropWidth, cropHeight;
 
-  $scope.initImageEditor = function() {
+  $scope.initImageEditor = function () {
     $scope.isEditingImage = true;
 
-    // 初始化Canvas
     setTimeout(() => {
       canvas = document.getElementById('imageEditorCanvas');
       ctx = canvas.getContext('2d');
 
-      // 加载原始图片
       imageElement = new Image();
       imageElement.crossOrigin = "anonymous";
       imageElement.src = `../api/file/${$stateParams.fileId}/data`;
@@ -45,7 +41,6 @@ angular.module('docs').controller('FileModalView', function ($http,$uibModalInst
         canvas.height = imageElement.height;
         ctx.drawImage(imageElement, 0, 0);
 
-        // 添加交互事件
         canvas.addEventListener('mousedown', startCrop);
         canvas.addEventListener('mousemove', updateCrop);
         canvas.addEventListener('mouseup', endCrop);
@@ -70,11 +65,9 @@ angular.module('docs').controller('FileModalView', function ($http,$uibModalInst
     cropWidth = currentX - cropStartX;
     cropHeight = currentY - cropStartY;
 
-    // 重绘Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imageElement, 0, 0);
 
-    // 绘制裁剪框
     ctx.strokeStyle = '#ff0000';
     ctx.lineWidth = 2;
     ctx.strokeRect(cropStartX, cropStartY, cropWidth, cropHeight);
@@ -84,53 +77,84 @@ angular.module('docs').controller('FileModalView', function ($http,$uibModalInst
     $scope.isCropping = false;
   }
 
-  $scope.applyCrop = function() {
+  $scope.applyCrop = function () {
     const croppedImage = ctx.getImageData(cropStartX, cropStartY, cropWidth, cropHeight);
 
-    // 创建临时Canvas保存裁剪结果
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = cropWidth;
     tempCanvas.height = cropHeight;
     const tempCtx = tempCanvas.getContext('2d');
     tempCtx.putImageData(croppedImage, 0, 0);
 
-    // 更新主Canvas
     canvas.width = cropWidth;
     canvas.height = cropHeight;
     ctx.drawImage(tempCanvas, 0, 0);
   };
 
-  $scope.rotateImage = function() {
+  $scope.rotateImage = function () {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.height;
     tempCanvas.height = canvas.width;
 
     const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.translate(tempCanvas.width/2, tempCanvas.height/2);
-    tempCtx.rotate(Math.PI/2);
-    tempCtx.drawImage(canvas, -canvas.width/2, -canvas.height/2);
+    tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+    tempCtx.rotate(Math.PI / 2);
+    tempCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
 
-    // 更新主Canvas
     canvas.width = tempCanvas.width;
     canvas.height = tempCanvas.height;
     ctx.drawImage(tempCanvas, 0, 0);
   };
 
-  $scope.saveEditedImage = function() {
-    canvas.toBlob(blob => {
-      const formData = new FormData();
-      formData.append('file', blob, $scope.file.name);
+  $scope.saveEditedImage = function () {
+    const dataURL = canvas.toDataURL($scope.file.mimetype);
 
-      // 调用API保存文件
-      FileService.updateFile($stateParams.fileId, formData).then(() => {
-        $scope.cancelEdit();
-        // 刷新页面显示新图片
-        $state.reload();
-      });
-    }, $scope.file.mimetype);
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = $scope.file.name || 'edited-image.png';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    $scope.cancelEdit();
+  };
+  $scope.saveEditedImage = function () {
+    var dataUrl = $scope.imageEditor.toDataURL();
+    var blob = dataURItoBlob(dataUrl);
+    var uploadedFile = new File([blob], $scope.file.name, { type: blob.type });
+
+    Upload.upload({
+      method: 'PUT',
+      url: '../api/file',
+      file: uploadedFile,
+      fields: {
+        id: $stateParams.id,
+        previousFileId: $scope.file.id
+      }
+    }).then(function (response) {
+      if (response.data) {
+        $rootScope.userInfo.storage_current += response.data.size;
+      }
+      $uibModalInstance.close($scope.file);
+    }, function (error) {
+      console.log('Upload failed:', error);
+    });
   };
 
-  $scope.cancelEdit = function() {
+  $scope.downloadEditedImage = function () {
+    const dataURL = canvas.toDataURL($scope.file.mimetype);
+
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = $scope.file.name || 'edited-image.png';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  $scope.cancelEdit = function () {
     $scope.isEditingImage = false;
     canvas.removeEventListener('mousedown', startCrop);
     canvas.removeEventListener('mousemove', updateCrop);
@@ -229,7 +253,7 @@ angular.module('docs').controller('FileModalView', function ($http,$uibModalInst
   };
 
   // Close the modal when the user exits this state
-  var off = $transitions.onStart({}, function(transition) {
+  var off = $transitions.onStart({}, function (transition) {
     if (!$uibModalInstance.closed) {
       if (transition.to().name === $state.current.name) {
         $uibModalInstance.close();

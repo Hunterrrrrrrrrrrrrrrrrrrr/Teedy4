@@ -3,23 +3,21 @@
 /**
  * Login controller.
  */
-angular.module('docs').controller('Login', function(Restangular, $http,$scope, $rootScope, $state, $stateParams, $dialog, User, $translate, $uibModal) {
+angular.module('docs').controller('Login', function (Restangular, $http, $scope, $rootScope, $state, $stateParams, $dialog, User, $translate, $uibModal) {
   $scope.codeRequired = false;
 
   // Get the app configuration
-  Restangular.one('app').get().then(function(data) {
+  Restangular.one('app').get().then(function (data) {
     $rootScope.app = data;
   });
 
 
-// 显示注册请求模态框
-  $scope.showRequestForm = function() {
+  $scope.showRequestForm = function () {
     $uibModal.open({
       templateUrl: 'partial/docs/register-request.html',
-      controller: function($scope) {
+      controller: function ($scope) {
         $scope.request = {};
-        //注册
-        $scope.submitRequest = function() {
+        $scope.submitRequest = function () {
           var data = $.param({
             username: $scope.request.username,
             password: $scope.request.password,
@@ -27,14 +25,14 @@ angular.module('docs').controller('Login', function(Restangular, $http,$scope, $
             reason: $scope.request.reason
           });
           Restangular.one('user').post('register_request', $scope.request)
-          .then(function () {
-          })
-          .catch(function (error) {
-            alert('Error submitting registration request: ' + (error.data.message || 'Unknown error'));
-          });
-          User.register($scope.request).then(function() {
+            .then(function () {
+            })
+            .catch(function (error) {
+              alert('Error submitting registration request: ' + (error.data.message || 'Unknown error'));
+            });
+          User.register($scope.request).then(function () {
             alert('注册申请已提交，请等待管理员审核！');
-          }, function(error) {
+          }, function (error) {
             // 处理错误，显示错误信息
             alert('注册失败: ' + (error.data?.message || '服务器错误'));
           });
@@ -47,30 +45,30 @@ angular.module('docs').controller('Login', function(Restangular, $http,$scope, $
 
 
   // Login as guest
-  $scope.loginAsGuest = function() {
+  $scope.loginAsGuest = function () {
     $scope.user = {
       username: 'guest',
       password: ''
     };
     $scope.login();
   };
-  
+
   // Login
-  $scope.login = function() {
-    User.login($scope.user).then(function() {
-      User.userInfo(true).then(function(data) {
+  $scope.login = function () {
+    User.login($scope.user).then(function () {
+      User.userInfo(true).then(function (data) {
         $rootScope.userInfo = data;
       });
 
-      if($stateParams.redirectState !== undefined && $stateParams.redirectParams !== undefined) {
+      if ($stateParams.redirectState !== undefined && $stateParams.redirectParams !== undefined) {
         $state.go($stateParams.redirectState, JSON.parse($stateParams.redirectParams))
-          .catch(function() {
+          .catch(function () {
             $state.go('document.default');
           });
       } else {
         $state.go('document.default');
       }
-    }, function(data) {
+    }, function (data) {
       if (data.data.type === 'ValidationCodeRequired') {
         // A TOTP validation code is required to login
         $scope.codeRequired = true;
@@ -78,7 +76,7 @@ angular.module('docs').controller('Login', function(Restangular, $http,$scope, $
         // Login truly failed
         var title = $translate.instant('login.login_failed_title');
         var msg = $translate.instant('login.login_failed_message');
-        var btns = [{result: 'ok', label: $translate.instant('ok'), cssClass: 'btn-primary'}];
+        var btns = [{ result: 'ok', label: $translate.instant('ok'), cssClass: 'btn-primary' }];
         $dialog.messageBox(title, msg, btns);
       }
     });
@@ -100,12 +98,12 @@ angular.module('docs').controller('Login', function(Restangular, $http,$scope, $
       }).then(function () {
         var title = $translate.instant('login.password_lost_sent_title');
         var msg = $translate.instant('login.password_lost_sent_message', { username: username });
-        var btns = [{result: 'ok', label: $translate.instant('ok'), cssClass: 'btn-primary'}];
+        var btns = [{ result: 'ok', label: $translate.instant('ok'), cssClass: 'btn-primary' }];
         $dialog.messageBox(title, msg, btns);
       }, function () {
         var title = $translate.instant('login.password_lost_error_title');
         var msg = $translate.instant('login.password_lost_error_message');
-        var btns = [{result: 'ok', label: $translate.instant('ok'), cssClass: 'btn-primary'}];
+        var btns = [{ result: 'ok', label: $translate.instant('ok'), cssClass: 'btn-primary' }];
         $dialog.messageBox(title, msg, btns);
       });
     });

@@ -1,3 +1,6 @@
 2025-03-25 11:32:27 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "T_CONFIG" not found; SQL statement:
 select c.CFG_VALUE_C from T_CONFIG c where c.CFG_ID_C='DB_VERSION' [42102-199]
+2025-05-20 17:10:14 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "T_CONFIG" not found; SQL statement:
+select c.CFG_VALUE_C from T_CONFIG c where c.CFG_ID_C='DB_VERSION' [42102-199]

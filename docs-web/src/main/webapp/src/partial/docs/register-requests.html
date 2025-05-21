@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="style/register-requests.css">
+  <title>Registration Requests</title>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Pending Registration Requests</h1>
+    <table class="fancy-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="request in requests">
+          <td>{{ request.username }}</td>
+          <td>{{ request.email }}</td>
+          <td>
+            <button class="action-btn approve-btn" ng-click="approveRequest(request)">
+              <i class="fas fa-check"></i> Approve
+            </button>
+            <button class="action-btn reject-btn" ng-click="rejectRequest(request)">
+              <i class="fas fa-times"></i> Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+
+</html>

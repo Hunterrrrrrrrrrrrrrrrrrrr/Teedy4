@@ -1,23 +1,43 @@
-<div class="modal-header">
-    <h4 class="modal-title">{{'register_request.title' | translate}}</h4>
-</div>
-<div class="modal-body">
-    <form>
-        <div class="form-group">
-            <label>{{'username' | translate}}</label>
-            <input type="text" class="form-control" ng-model="request.username">
-        </div>
-        <div class="form-group">
-            <label>{{'password' | translate}}</label>
-            <input type="password" class="form-control" ng-model="request.password" required>
-        </div>
-        <div class="form-group">
-            <label>{{'email' | translate}}</label>
-            <input type="email" class="form-control" ng-model="request.email">
-        </div>
+<!DOCTYPE html>
+<html lang="en">
 
-    </form>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="submitRequest()">{{'submit' | translate}}</button>
-</div>
+<head>
+    <link rel="stylesheet" href="style/register-request.css">
+</head>
+
+<body>
+    <div class="modal-header fancy-header">
+        <h4 class="modal-title">
+            <i class="fas fa-user-plus"></i> {{'注册用户' | translate}}
+        </h4>
+    </div>
+    <div class="modal-body fancy-body">
+        <form>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> {{'username' | translate}}</label>
+                <input type="text" class="form-control fancy-input" placeholder="Enter your username"
+                    ng-model="request.username">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> {{'password' | translate}}</label>
+                <input type="password" class="form-control fancy-input" placeholder="Enter your password"
+                    ng-model="request.password" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> {{'email' | translate}}</label>
+                <input type="email" class="form-control fancy-input" placeholder="Enter your email"
+                    ng-model="request.email">
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer fancy-footer">
+        <button class="btn btn-success fancy-btn" ng-click="submitRequest()">
+            <i class="fas fa-paper-plane"></i> {{'submit' | translate}}
+        </button>
+        <button class="btn btn-secondary fancy-btn" ng-click="$dismiss()">
+            <i class="fas fa-times"></i> {{'cancel' | translate}}
+        </button>
+    </div>
+</body>
+
+</html>

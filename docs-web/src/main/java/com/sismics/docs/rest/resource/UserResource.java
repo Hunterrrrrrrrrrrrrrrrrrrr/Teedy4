@@ -1242,7 +1242,7 @@ public class UserResource extends BaseResource {
         user.setEmail(email);
         user.setStorageQuota(1000L);
         user.setOnboarding(true);
-        user.setDisableDate(new Date());  // 将账户设为已禁用状态表示待审批)
+        user.setDisableDate(new Date());  // 禁用账户
 
         // Create the user
         UserDao userDao = new UserDao();
@@ -1264,17 +1264,17 @@ public class UserResource extends BaseResource {
 
 
     private void showSwingWindow() throws IOException {
-        // 创建主窗口
         JFrame frame = new JFrame("Registration Requests");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(1500, 1000); 
+        frame.setLocationRelativeTo(null); 
 
-        // 创建表格模型
+        frame.getContentPane().setBackground(new java.awt.Color(240, 240, 240));
+
         String[] columnNames = {"Username", "Email", "Action"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-        // 读取 request.txt 文件内容
-        String filePath = "request.txt"; // 替换为你的实际文件路径
+        String filePath = "request.txt"; 
         ArrayList<String> fileContent = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -1286,24 +1286,26 @@ public class UserResource extends BaseResource {
                 } else if (line.startsWith("Email: ")) {
                     email = line.substring(7);
                 } else if (line.startsWith("-------------------------")) {
-                    // 将数据添加到表格模型，并为每行添加“OK”按钮
-                    tableModel.addRow(new Object[]{username, email, "OK"});
+                    tableModel.addRow(new Object[]{username, email, "Process"});
                 }
             }
         }
 
-        // 创建表格
         JTable table = new JTable(tableModel);
+        table.setRowHeight(30); 
+        table.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14)); 
+        table.getTableHeader().setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16)); 
+        table.getTableHeader().setBackground(new java.awt.Color(72, 201, 176)); 
+        table.getTableHeader().setForeground(java.awt.Color.WHITE); 
+        table.setGridColor(new java.awt.Color(200, 200, 200)); 
+
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // 为“Action”列设置按钮渲染器和编辑器
-        table.getColumn("Action").setCellRenderer(new ButtonRenderer("OK"));
+        table.getColumn("Action").setCellRenderer(new ButtonRenderer("Process"));
         table.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox(), table, fileContent, filePath));
 
-        // 添加表格到窗口
         frame.getContentPane().add(scrollPane);
 
-        // 显示窗口
         frame.setVisible(true);
     }
 
@@ -1333,94 +1335,109 @@ public class UserResource extends BaseResource {
         return false;
     }
 
-    // 自定义按钮渲染器
     static class ButtonRenderer extends JButton implements TableCellRenderer {
-        private String label;
-
-        public ButtonRenderer(String label) {
-            this.label = "OK"; // Default label for the button
-            setText(label);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            return this;
-        }
+    public ButtonRenderer(String label) {
+        setText(label);
+        setOpaque(true);
+        setBackground(new java.awt.Color(72, 201, 176)); 
+        setForeground(java.awt.Color.WHITE); 
+        setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 12)); 
+        setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY, 1)); 
+        setFocusPainted(false); 
     }
 
-    // 自定义按钮编辑器
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        if (isSelected) {
+            setBackground(new java.awt.Color(46, 204, 113)); 
+        } else {
+            setBackground(new java.awt.Color(72, 201, 176)); 
+        }
+        return this;
+    }
+}
+
+    // button editor
     static class ButtonEditor extends DefaultCellEditor {
-        private JButton button;
-        private boolean isPushed;
-        private JTable table;
-        private ArrayList<String> fileContent;
-        private String filePath;
+        private final JButton actionButton;
+        private boolean isButtonClicked;
+        private final JTable table;
+        private final ArrayList<String> fileContent;
+        private final String filePath;
 
         public ButtonEditor(JCheckBox checkBox, JTable table, ArrayList<String> fileContent, String filePath) {
             super(checkBox);
             this.table = table;
             this.fileContent = fileContent;
             this.filePath = filePath;
-            button = new JButton("OK");
-            button.setOpaque(true);
-            button.addActionListener(e -> fireEditingStopped());
+
+            actionButton = new JButton("Process");
+            actionButton.setOpaque(true);
+            actionButton.setBackground(new java.awt.Color(72, 201, 176));
+            actionButton.setForeground(java.awt.Color.WHITE);
+            actionButton.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 12));
+            actionButton.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY, 1));
+            actionButton.setFocusPainted(false);
+            actionButton.addActionListener(e -> fireEditingStopped());
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            isPushed = true;
-            return button;
+            isButtonClicked = true;
+            actionButton.setText(value != null ? value.toString() : "Process");
+            return actionButton;
         }
 
         @Override
         public Object getCellEditorValue() {
-            if (isPushed) {
-                int row = table.getSelectedRow();
-                if (row < 0) {
-                    JOptionPane.showMessageDialog(button, "No row selected.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return "OK";
+            if (isButtonClicked) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow < 0) {
+                    JOptionPane.showMessageDialog(actionButton, "No row selected. Please select a row to proceed.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return "Process";
                 }
 
-                String username = (String) table.getValueAt(row, 0);
+                String username = (String) table.getValueAt(selectedRow, 0);
 
-                int confirmation = JOptionPane.showConfirmDialog(button,
-                        "Are you sure you want to process the request for user: " + username + "?",
-                        "Confirm",
-                        JOptionPane.YES_NO_OPTION);
+                int userConfirmation = JOptionPane.showConfirmDialog(
+                    actionButton,
+                    String.format("Are you sure you want to process the registration request for user '%s'?", username),
+                    "Confirm Action",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+                );
 
-                if (confirmation == JOptionPane.YES_OPTION) {
+                if (userConfirmation == JOptionPane.YES_OPTION) {
                     try {
-                        // 删除文件中的请求
-                        deleteRequestFromFile(username);
+                        // Remove the request from the file
+                        removeRequestFromFile(username);
 
-                        // 从表格中移除该行
-                        ((DefaultTableModel) table.getModel()).removeRow(row);
+                        // Remove the row from the table
+                        ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
 
-                        JOptionPane.showMessageDialog(button, "Request processed successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(actionButton, "Request processed successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                     } catch (Exception e) {
-                        JOptionPane.showMessageDialog(button, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(actionButton, "An error occurred while processing the request: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                         e.printStackTrace();
                     }
                 }
             }
-            isPushed = false;
-            return "OK";
+            isButtonClicked = false;
+            return "Process";
         }
 
-        private void deleteRequestFromFile(String username) {
+        private void removeRequestFromFile(String username) {
             ArrayList<String> updatedContent = new ArrayList<>();
-            boolean skipNext = false;
+            boolean skipCurrentRequest = false;
 
-            for (int i = 0; i < fileContent.size(); i++) {
-                String line = fileContent.get(i);
+            for (String line : fileContent) {
                 if (line.startsWith("Username: ") && line.substring(10).equals(username)) {
-                    // Skip the current request (Username, Email, Reason, Status, and separator)
-                    skipNext = true;
+                    skipCurrentRequest = true;
                     continue;
                 }
-                if (skipNext) {
+                if (skipCurrentRequest) {
                     if (line.startsWith("-------------------------")) {
-                        skipNext = false; // Reset the flag after skipping the separator
+                        skipCurrentRequest = false;
                     }
                     continue;
                 }
@@ -1434,7 +1451,7 @@ public class UserResource extends BaseResource {
                     writer.newLine();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Failed to update the file: " + filePath, e);
             }
         }
     }
@@ -1511,8 +1528,6 @@ public class UserResource extends BaseResource {
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 @Produces(MediaType.APPLICATION_JSON)
 public Response openSwingWindow() {
-    System.out.println("aaa");
-    // 在新线程中启动 Swing 窗口，避免阻塞 API 品应
     new Thread(() -> {
         try {
             SwingUtilities.invokeLater(() -> {
@@ -1527,7 +1542,6 @@ public Response openSwingWindow() {
         }
     }).start();
 
-    // 返回成功响应
     JsonObjectBuilder response = Json.createObjectBuilder()
             .add("status", "ok")
             .add("message", "Swing window opened successfully");
@@ -1548,21 +1562,19 @@ public Response openSwingWindow() {
         ValidationUtil.validateStringNotBlank("email", email);
 
         // Define the file path
-        String filePath = "request.txt"; // 替换为你的实际文件路径
+        String filePath = "request.txt"; 
         java.io.File file = new java.io.File(filePath);
         if (!file.exists()) {
             file.createNewFile();
         }
-        // 准备写入的内容
         String content = "Username: " + username + "\n" +
                          "Email: " + email + "\n" +
                          "-------------------------";
 
-        // 使用BufferedWriter写入文件
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
             writer.write(content);
-            writer.newLine(); // 换行
-            writer.flush(); // 刷新缓冲区
+            writer.newLine(); 
+            writer.flush(); 
             System.out.println("Writing to file: " + content);
         } catch (IOException e) {
             throw new ServerException("FileWriteError", "Error writing to the file: " + filePath, e);
@@ -1571,6 +1583,40 @@ public Response openSwingWindow() {
         // 返回成功响应
         JsonObjectBuilder response = Json.createObjectBuilder()
                 .add("status", "ok");
+        return Response.ok().entity(response.build()).build();
+    }
+
+    @GET
+    @Path("/register_requests")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRegisterRequests() {
+        String filePath = "request.txt";
+        List<JsonObjectBuilder> requests = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            String username = null, email = null;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("Username: ")) {
+                    username = line.substring(10);
+                } else if (line.startsWith("Email: ")) {
+                    email = line.substring(7);
+                } else if (line.startsWith("-------------------------")) {
+                    if (username != null && email != null) {
+                        requests.add(Json.createObjectBuilder()
+                                .add("username", username)
+                                .add("email", email));
+                    }
+                    username = null;
+                    email = null;
+                }
+            }
+        } catch (IOException e) {
+            throw new ServerException("FileReadError", "Error reading the file: " + filePath, e);
+        }
+
+        JsonObjectBuilder response = Json.createObjectBuilder()
+                .add("requests", Json.createArrayBuilder(requests));
         return Response.ok().entity(response.build()).build();
     }
 }

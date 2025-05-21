@@ -7,14 +7,12 @@
 
 
   <div class="btn-group">
-    <button type="button" class="btn btn-default"
-            ng-style="{ 'visibility': previousFile() ? 'visible' : 'hidden' }"
-            ng-click="goPreviousFile()">
+    <button type="button" class="btn btn-default" ng-style="{ 'visibility': previousFile() ? 'visible' : 'hidden' }"
+      ng-click="goPreviousFile()">
       {{ 'file.view.previous' | translate }}
     </button>
-    <button type="button" class="btn btn-default"
-            ng-style="{ 'visibility': nextFile() ? 'visible' : 'hidden' }"
-            ng-click="goNextFile()">
+    <button type="button" class="btn btn-default" ng-style="{ 'visibility': nextFile() ? 'visible' : 'hidden' }"
+      ng-click="goNextFile()">
       {{ 'file.view.next' | translate }}
     </button>
     <button type="button" class="btn btn-placeholder" style="visibility: hidden">
@@ -22,7 +20,6 @@
     </button>
   </div>
 
-  <!-- 在原有HTML基础上添加以下canvas相关结构 -->
   <div ng-if="isEditingImage" class="image-editor-container">
     <div class="image-editor-toolbar">
       <button class="btn btn-primary" ng-click="applyCrop()">裁剪</button>
@@ -36,23 +33,23 @@
       <div class="crop-overlay" ng-show="isCropping"></div>
     </div>
   </div>
-  
+
   <div class="btn-group pull-right">
-    <button type="button" class="btn btn-default" uib-tooltip="Print this file" tooltip-append-to-body="true" ng-click="printFile()">
+    <button type="button" class="btn btn-default" uib-tooltip="Print this file" tooltip-append-to-body="true"
+      ng-click="printFile()">
       <span class="fas fa-print"></span>
     </button>
-    <button type="button" class="btn btn-default" uib-tooltip="Download this file" tooltip-append-to-body="true" ng-click="openFile()">
+    <button type="button" class="btn btn-default" uib-tooltip="Download this file" tooltip-append-to-body="true"
+      ng-click="openFile()">
       <span class="fas fa-download"></span>
     </button>
-    <button type="button" class="btn btn-default" uib-tooltip="Show text content" tooltip-append-to-body="true" ng-click="openFileContent()">
+    <button type="button" class="btn btn-default" uib-tooltip="Show text content" tooltip-append-to-body="true"
+      ng-click="openFileContent()">
       <span class="fas fa-eye"></span>
     </button>
     <!-- new edit button -->
-    <button type="button" class="btn btn-default"
-            uib-tooltip="edit this image"
-            tooltip-append-to-body="true"
-            ng-click="initImageEditor()"
-            ng-show="isImage()">
+    <button type="button" class="btn btn-default" uib-tooltip="edit this image" tooltip-append-to-body="true"
+      ng-click="initImageEditor()" ng-show="isImage()">
       <span class="fas fa-edit"></span>
     </button>
   </div>
@@ -65,21 +62,21 @@
 
 <div class="text-center" style="position: relative;" ng-if="$stateParams.fileId">
   <!-- Standard preview -->
-  <img ng-src="../api/file/{{ $stateParams.fileId }}/data?size=web"
-       ng-init="error = false"
-       img-error="error = true"
-       ng-show="!error && canDisplayPreview()" />
+  <img ng-src="../api/file/{{ $stateParams.fileId }}/data?size=web" ng-init="error = false" img-error="error = true"
+    ng-show="!error && canDisplayPreview()" />
 
   <!-- Media player -->
-  <a href class="video-overlay" ng-if="!error && (file.mimetype.substring(0, 6) == 'video/' || file.mimetype.substring(0, 6) == 'audio/')"
-     ng-init="videoPlayer = false" ng-click="videoPlayer = true">
+  <a href class="video-overlay"
+    ng-if="!error && (file.mimetype.substring(0, 6) == 'video/' || file.mimetype.substring(0, 6) == 'audio/')"
+    ng-init="videoPlayer = false" ng-click="videoPlayer = true">
     <span class="fas fa-play-circle" ng-if="!videoPlayer"></span>
-    <video ng-if="videoPlayer" autoplay="autoplay" loop="loop"
-           controls="controls" ng-src="../api/file/{{ $stateParams.fileId }}/data"></video>
+    <video ng-if="videoPlayer" autoplay="autoplay" loop="loop" controls="controls"
+      ng-src="../api/file/{{ $stateParams.fileId }}/data"></video>
   </a>
 
   <!-- PDF viewer -->
-  <iframe ng-src="{{ trustedFileUrl }}" class="pdf-viewer" scrolling="yes" ng-if="!error && file.mimetype == 'application/pdf'"></iframe>
+  <iframe ng-src="{{ trustedFileUrl }}" class="pdf-viewer" scrolling="yes"
+    ng-if="!error && file.mimetype == 'application/pdf'"></iframe>
 
   <!-- File not found -->
   <p class="well-lg" ng-show="error">

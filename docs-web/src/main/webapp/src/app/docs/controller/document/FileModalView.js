@@ -119,28 +119,7 @@ angular.module('docs').controller('FileModalView', function ($http, $uibModalIns
 
     $scope.cancelEdit();
   };
-  $scope.saveEditedImage = function () {
-    var dataUrl = $scope.imageEditor.toDataURL();
-    var blob = dataURItoBlob(dataUrl);
-    var uploadedFile = new File([blob], $scope.file.name, { type: blob.type });
 
-    Upload.upload({
-      method: 'PUT',
-      url: '../api/file',
-      file: uploadedFile,
-      fields: {
-        id: $stateParams.id,
-        previousFileId: $scope.file.id
-      }
-    }).then(function (response) {
-      if (response.data) {
-        $rootScope.userInfo.storage_current += response.data.size;
-      }
-      $uibModalInstance.close($scope.file);
-    }, function (error) {
-      console.log('Upload failed:', error);
-    });
-  };
 
   $scope.downloadEditedImage = function () {
     const dataURL = canvas.toDataURL($scope.file.mimetype);
